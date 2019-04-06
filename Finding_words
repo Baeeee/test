@@ -1,0 +1,21 @@
+import java.util.Scanner;
+
+public class Finding_words {
+    public static void main (String[] args) {
+
+        // 문자열 입력받아 문자열 내에 원하는 단어의 존재 여부 확인
+        System.out.print("Enter sentence: ");
+        Scanner sc1 = new Scanner(System.in);
+        String str = sc1.nextLine();
+        while(true) {
+            System.out.print("Enter word: ");
+            Scanner sc2 = new Scanner(System.in);
+            String input = sc2.next();
+
+        if(str.contains(input))
+            System.out.println(str+"안에"+" "+input+"가 있다");
+        else
+            System.out.println("없음"); }
+
+    }
+}

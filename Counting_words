@@ -1,0 +1,26 @@
+import java.util.Scanner;
+
+public class Counting_words {
+    public static void main(String[] args) {
+        // 입력받은 문자열에서 단어의 개수 세기
+        while (true) {
+            System.out.print("Enter sentence: ");
+            Scanner sc1 = new Scanner(System.in);
+            String a = sc1.nextLine().trim();
+            String arr[] = a.split(" ");
+
+            /* int cnt = 0;
+            for (int i = 0; i < a.length(); i++) {
+                if (a.charAt(i) == ' ')
+                    cnt ++;
+
+            }
+            cnt++;       */
+            
+            if(a.isEmpty())
+                System.out.println("단어 개수: 0개");
+            else
+            System.out.println("단어 개수: " + arr.length + "개");
+        }
+    }
+}

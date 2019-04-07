@@ -1,0 +1,31 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.util.Scanner;
+
+public class Wordsinfiles {
+    public static void main(String[] args) {
+        // 파일 안 원하는 단어를 포함한 열 찾기
+        try {
+            System.out.print("Enter word: ");
+            Scanner sc = new Scanner(System.in);
+            String input = sc.next();
+
+            File f = new File("C:\\Users\\초아\\Desktop\\diva-android-master\\diva-android-master\\app\\src\\main\\AndroidManifest.xml");
+            FileReader fr = new FileReader(f);
+            BufferedReader bufr = new BufferedReader(fr);
+            String line = "";
+            while((line = bufr.readLine()) != null) {
+                if(line.contains(input))
+                    System.out.println(line);
+            }
+            bufr.close(); }
+        catch(FileNotFoundException e) {
+            System.out.println("파일을 찾을 수 없음"); }
+        catch(IOException e) {
+            System.out.println(e); }
+        
+    }
+}

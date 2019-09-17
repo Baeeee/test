@@ -1,0 +1,155 @@
+package Excel;
+
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.*;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.util.Scanner;
+
+public class testDB {
+    public static void Excel() {
+        Connection con = null;
+
+        String server = "localhost"; // MySQL 서버 주소
+        String database = "DB"; // MySQL DATABASE 이름
+        String user_name = "root"; //  MySQL 서버 아이디
+        String password = "1234"; // MySQL 서버 비밀번호
+
+        // 1.드라이버 로딩
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println(" !! <JDBC 오류> Driver load 오류: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // 2.연결
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://" + server + "/" + database + "?useSSL=false", user_name, password);
+            System.out.println("정상적으로 연결되었습니다.");
+
+            String qu = "select * from Result2";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(qu);
+
+        // 3. 엑셀 작성 시작
+            HSSFWorkbook workbook = new HSSFWorkbook();
+
+            Row row = null;
+            Cell cell = null;
+            int rowCount = 0;
+            int cellCount = 0;
+
+         //Sheet 생성
+            Sheet sheet = workbook.createSheet("Reporting");
+            sheet.setColumnWidth(0, 15 * 256);
+            sheet.setColumnWidth(1, 5 * 256);
+            sheet.setColumnWidth(2, 30 * 256);
+            sheet.setColumnWidth(3, 40 * 256);
+
+            rowCount++;                         //첫줄 개행
+
+            row = sheet.createRow(rowCount++);  //열 생성
+            cellCount = 0;                      //셀 카운트 초기화
+
+            //해더부분셀에 스타일을 주기위한 인스턴스 생성
+            HSSFCellStyle cellStyle = workbook.createCellStyle();
+            cellStyle.setBorderBottom(BorderStyle.THIN);
+            cellStyle.setBorderLeft(BorderStyle.THIN);
+            cellStyle.setBorderRight(BorderStyle.THIN);
+            cellStyle.setBorderTop(BorderStyle.THIN);
+            cellStyle.setAlignment(HorizontalAlignment.CENTER);
+            cellStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.LIGHT_ORANGE.getIndex());
+            cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            HSSFCellStyle cellStyle2 = workbook.createCellStyle();
+            cellStyle2.setAlignment(HorizontalAlignment.CENTER);
+
+
+        //셀 생성
+            cell = row.createCell(cellCount++);
+            cell.setCellValue("점검 항목명");
+            cell.setCellStyle(cellStyle);
+
+            cell = row.createCell(cellCount++);
+            cell.setCellValue("등급");
+            cell.setCellStyle(cellStyle);
+
+            cell = row.createCell(cellCount++);
+            cell.setCellValue("상태");
+            cell.setCellStyle(cellStyle);
+
+            cell = row.createCell(cellCount++);
+            cell.setCellValue("권유 조치 방안");
+            cell.setCellStyle(cellStyle);
+
+    //2열 작성
+
+            while(rs.next()) {
+                String Name = rs.getString("Name");
+                String Grade = rs.getString("Grade");
+                String Content = rs.getString("Content");
+             // System.out.format("%s, %s, %s \r\n", Name, Grade, Content);
+
+                row = sheet.createRow(rowCount++);
+                cellCount = 0;
+
+                cell = row.createCell(cellCount++);
+                cell.setCellValue(Name);
+
+                cell = row.createCell(cellCount++);
+                cell.setCellValue(Grade);
+                cell.setCellStyle(cellStyle2);
+
+                cell = row.createCell(cellCount++);
+                cell.setCellValue(Content);
+
+                cell = row.createCell(cellCount++);
+                File f = new File("C:\\Users\\초아\\Desktop\\권유 조치 방안.txt");                       //경로 다자바로 변경
+                BufferedReader br  =  new BufferedReader(new InputStreamReader(new FileInputStream(f),"euc-kr"));
+                String line = "";
+                while((line = br.readLine()) != null) {
+                    if (line.contains(Name)) {
+                        int a = line.indexOf(":");
+                        String result = line.substring(a+1);
+                        cell.setCellValue(result);
+                    }
+                }
+
+             } st.close();
+
+                System.out.print("파일명을 입력하시오 : ");      // 파일명 입력받기로 바꾸기
+                Scanner scsc = new Scanner(System.in);
+                String filename = scsc.next();
+                FileOutputStream outFile = new FileOutputStream("C:\\Users\\초아\\Desktop\\" + filename + ".xls");   // 경로 다자바로 변경해야함
+                System.out.println("Done");
+                workbook.write(outFile);
+                outFile.close();
+
+        } catch (SQLException e) {
+            System.err.println("con 오류:" + e.getMessage());
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 4. 해제
+        try {
+            if (con != null)
+                con.close();
+        } catch (SQLException e) {}
+    }
+
+    public static void main(String[] args) {
+        Excel();
+    }
+}

@@ -36,8 +36,11 @@ public class testDB {
             System.out.println("정상적으로 연결되었습니다.");
 
             String qu = "select * from Result2";
+            String qu2 = "select * from result";
             Statement st = con.createStatement();
+            Statement st2 = con.createStatement();
             ResultSet rs = st.executeQuery(qu);
+            ResultSet rs2 = st2.executeQuery(qu2);
 
         // 3. 엑셀 작성 시작
             HSSFWorkbook workbook = new HSSFWorkbook();
@@ -49,15 +52,10 @@ public class testDB {
 
          //Sheet 생성
             Sheet sheet = workbook.createSheet("Reporting");
-            sheet.setColumnWidth(0, 15 * 256);
+            sheet.setColumnWidth(0, 20 * 256);
             sheet.setColumnWidth(1, 5 * 256);
             sheet.setColumnWidth(2, 30 * 256);
-            sheet.setColumnWidth(3, 40 * 256);
-
-            rowCount++;                         //첫줄 개행
-
-            row = sheet.createRow(rowCount++);  //열 생성
-            cellCount = 0;                      //셀 카운트 초기화
+            sheet.setColumnWidth(3, 75 * 256);
 
             //해더부분셀에 스타일을 주기위한 인스턴스 생성
             HSSFCellStyle cellStyle = workbook.createCellStyle();
@@ -72,6 +70,29 @@ public class testDB {
             HSSFCellStyle cellStyle2 = workbook.createCellStyle();
             cellStyle2.setAlignment(HorizontalAlignment.CENTER);
 
+            HSSFCellStyle cellStyle3 = workbook.createCellStyle();
+            cellStyle3.setAlignment(HorizontalAlignment.RIGHT);
+
+            HSSFFont f = workbook.createFont();
+            f.setColor(Font.COLOR_RED);
+            HSSFCellStyle font = workbook.createCellStyle();
+            font.setFont(f);
+            font.setAlignment(HorizontalAlignment.CENTER);
+
+
+            row = sheet.createRow(rowCount++);
+            cellCount=3;
+            while(rs2.next()) {
+                String FileName = rs2.getString("FileName");
+                String Date = rs2.getString("Date");
+
+                cell = row.createCell(cellCount++);
+                cell.setCellValue(FileName + "  /  " + Date);
+                cell.setCellStyle(cellStyle3); }
+
+     //     rowCount++;                         //첫줄 개행
+            row = sheet.createRow(rowCount++);  //열 생성
+            cellCount=0;
 
         //셀 생성
             cell = row.createCell(cellCount++);
@@ -91,7 +112,6 @@ public class testDB {
             cell.setCellStyle(cellStyle);
 
     //2열 작성
-
             while(rs.next()) {
                 String Name = rs.getString("Name");
                 String Grade = rs.getString("Grade");
@@ -106,14 +126,16 @@ public class testDB {
 
                 cell = row.createCell(cellCount++);
                 cell.setCellValue(Grade);
-                cell.setCellStyle(cellStyle2);
+                if(Grade.equals("상")) cell.setCellStyle(font);
+                else cell.setCellStyle(cellStyle2);
 
                 cell = row.createCell(cellCount++);
                 cell.setCellValue(Content);
 
+
                 cell = row.createCell(cellCount++);
-                File f = new File("C:\\Users\\초아\\Desktop\\권유 조치 방안.txt");                       //경로 다자바로 변경
-                BufferedReader br  =  new BufferedReader(new InputStreamReader(new FileInputStream(f),"euc-kr"));
+                File file = new File("C:\\Users\\초아\\Desktop\\권유 조치 방안.txt");                       //경로 다자바로 변경
+                BufferedReader br  =  new BufferedReader(new InputStreamReader(new FileInputStream(file),"euc-kr"));
                 String line = "";
                 while((line = br.readLine()) != null) {
                     if (line.contains(Name)) {
@@ -122,7 +144,6 @@ public class testDB {
                         cell.setCellValue(result);
                     }
                 }
-
              } st.close();
 
                 System.out.print("파일명을 입력하시오 : ");      // 파일명 입력받기로 바꾸기
